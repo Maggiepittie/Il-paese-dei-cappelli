@@ -1,0 +1,137 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Il paese dei cappelli</title>
+<style>
+:root{
+  --desk:#cfdde3;
+  --paper:#f8faf9;
+  --ink:#1f3a44;
+  --ink-soft:#4d6872;
+  --rule:#b9c9cf;
+  --accent:#534ab7;
+  color-scheme:light dark;
+}
+@media (prefers-color-scheme:dark){
+  :root{--desk:#10222a;--paper:#1c2f37;--ink:#e6eef1;--ink-soft:#a5bbc3;--rule:#355260;--accent:#aea9ec}
+}
+*{box-sizing:border-box}
+html,body{height:100%;margin:0}
+body{
+  background:var(--desk);color:var(--ink);
+  font-family:Georgia,"Iowan Old Style","Palatino Linotype",serif;
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:24px 16px;gap:20px;
+}
+h1.sr{position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0 0 0 0)}
+.stage{perspective:1600px;width:min(920px,100%)}
+.book{
+  display:grid;grid-template-columns:1fr 1fr;min-height:480px;
+  background:var(--paper);border:1px solid var(--rule);border-radius:6px;overflow:hidden;
+}
+.left{display:flex;align-items:center;justify-content:center;padding:32px;border-right:1px solid var(--rule)}
+.left svg{width:100%;max-width:340px;height:auto}
+.right{
+  padding:44px 40px;display:flex;flex-direction:column;justify-content:center;
+  transform-origin:left center;transition:transform .24s ease-in;
+}
+.num{font-size:14px;color:var(--ink-soft);margin:0 0 14px;font-style:italic}
+.right h2{font-size:30px;font-weight:400;line-height:1.2;margin:0 0 18px;letter-spacing:-.01em}
+.right p.txt{font-size:20px;line-height:1.75;margin:0;max-width:34ch}
+.cover .right h2{font-size:42px}
+.nav{display:flex;align-items:center;gap:20px}
+button{
+  font:inherit;font-size:16px;color:var(--ink);background:transparent;
+  border:1px solid var(--ink-soft);border-radius:6px;padding:10px 18px;cursor:pointer;
+}
+button:hover{background:var(--paper)}
+button:focus-visible{outline:3px solid var(--accent);outline-offset:2px}
+button[aria-disabled="true"]{opacity:.45;cursor:default}
+.dots{display:flex;gap:8px}
+.dots span{width:8px;height:8px;border-radius:50%;background:var(--rule)}
+.dots span.on{background:var(--ink)}
+@media (max-width:640px){
+  .book{grid-template-columns:1fr;min-height:0}
+  .left{border-right:0;border-bottom:1px solid var(--rule);padding:20px}
+  .left svg{max-width:220px}
+  .right{padding:26px 22px}
+  .right h2,.cover .right h2{font-size:26px}
+  .right p.txt{font-size:18px}
+}
+@media (prefers-reduced-motion:reduce){.right{transition:none}}
+</style>
+</head>
+<body>
+<h1 class="sr">Il paese dei cappelli</h1>
+<div class="stage">
+  <div class="book" id="book">
+    <div class="left" id="left"></div>
+    <div class="right" id="right">
+      <p class="num" id="num"></p>
+      <h2 id="ttl"></h2>
+      <p class="txt" id="txt"></p>
+    </div>
+  </div>
+</div>
+<div class="nav">
+  <button id="prev" aria-label="Pagina precedente">Indietro</button>
+  <div class="dots" id="dots" aria-hidden="true"></div>
+  <button id="next" aria-label="Pagina successiva">Avanti</button>
+</div>
+
+<script>
+var S=function(b){return '<svg viewBox="0 0 200 200" role="img" aria-hidden="true">'+b+'</svg>'};
+var ground='<rect x="20" y="170" width="160" height="3" rx="1.5" fill="#7d9aa5"/>';
+var pages=[
+{t:"Il paese dei cappelli",x:"Una storia da sfogliare, un cappello alla volta.",s:S('<rect x="55" y="40" width="90" height="100" rx="6" fill="#534AB7"/><rect x="55" y="112" width="90" height="14" fill="#CECBF6"/><rect x="25" y="140" width="150" height="16" rx="8" fill="#3C3489"/>'+ground)},
+{t:"Arrivo",x:"Nessuno, laggiù, si presenta dicendo il proprio nome. Ti guardano, si sfiorano la tesa e ti dicono: «Piacere, sono quello col cappello verde».",s:S('<path d="M30 140 Q100 20 170 140 Z" fill="#1D9E75"/><rect x="20" y="138" width="160" height="14" rx="7" fill="#0F6E56"/><circle cx="100" cy="34" r="8" fill="#D85A30"/>'+ground)},
+{t:"La piazza del mattino",x:"Ogni mattina la piazza si riempie di cappelli: tondi, a punta, a tesa larga, alti come camini. Dal campanile sembrano fiori che camminano.",s:S('<ellipse cx="55" cy="130" rx="30" ry="12" fill="#D85A30"/><rect x="40" y="100" width="30" height="30" rx="4" fill="#993C1D"/><path d="M110 150 L140 70 L170 150 Z" fill="#D4537E"/><rect x="104" y="148" width="72" height="8" rx="4" fill="#993556"/><circle cx="75" cy="60" r="22" fill="#378ADD"/><rect x="50" y="70" width="50" height="8" rx="4" fill="#185FA5"/>'+ground)},
+{t:"La bottega di Tesa",x:"In fondo alla via c’è la bottega della signora Tesa, che cuce cappelli su misura. Non misura la testa: ascolta cosa sogni, e poi comincia a tagliare.",s:S('<rect x="35" y="70" width="130" height="100" rx="4" fill="#BA7517"/><rect x="50" y="90" width="40" height="40" rx="3" fill="#FAEEDA"/><rect x="110" y="110" width="35" height="60" rx="3" fill="#854F0B"/><path d="M25 74 L100 30 L175 74 Z" fill="#993C1D"/><path d="M58 90 Q70 70 82 90 Z" fill="#7F77DD"/>'+ground)},
+{t:"Il cappello dei pensieri",x:"Quando pensi forte, il tuo cappello si solleva di un dito. Per questo in biblioteca tutti camminano piano e nessuno osa sbadigliare.",s:S('<path d="M60 150 Q60 90 100 90 Q140 90 140 150 Z" fill="#7F77DD"/><rect x="50" y="148" width="100" height="10" rx="5" fill="#534AB7"/><path d="M90 70 L100 55 L110 70" fill="none" stroke="#7d9aa5" stroke-width="3" stroke-linecap="round"/><path d="M82 52 L100 36 L118 52" fill="none" stroke="#9db3bb" stroke-width="3" stroke-linecap="round"/>'+ground)},
+{t:"Il giorno del vento",x:"Una volta all’anno soffia il vento grande. Tutti i cappelli volano via insieme, e per un attimo il cielo sembra una festa senza invitati.",s:S('<ellipse cx="50" cy="60" rx="24" ry="9" fill="#378ADD" transform="rotate(-20 50 60)"/><rect x="40" y="38" width="22" height="20" rx="3" fill="#185FA5" transform="rotate(-20 50 60)"/><ellipse cx="130" cy="90" rx="26" ry="9" fill="#D4537E" transform="rotate(15 130 90)"/><path d="M118 88 L130 60 L142 88Z" fill="#993556" transform="rotate(15 130 90)"/><ellipse cx="80" cy="140" rx="22" ry="8" fill="#1D9E75" transform="rotate(-8 80 140)"/><path d="M20 110 Q50 100 80 112 M120 130 Q150 120 180 132" fill="none" stroke="#7d9aa5" stroke-width="3" stroke-linecap="round"/>'+ground)},
+{t:"Il cappello degli altri",x:"Quando il vento si ferma, ognuno raccoglie il primo cappello che trova. Per un giorno intero si gira con la testa sotto un’idea diversa. Ed è sorprendente quanto si capisca meglio il vicino.",s:S('<path d="M30 140 Q100 20 170 140 Z" fill="#1D9E75"/><rect x="20" y="138" width="160" height="14" rx="7" fill="#0F6E56"/><path d="M70 100 L100 70 L130 100" fill="none" stroke="#9FE1CB" stroke-width="4" stroke-linecap="round"/>'+ground)},
+{t:"Fine",x:"Quando riparti, la signora Tesa ti porge un cappello piccolo piccolo. «Non è per la testa», dice. «È per ricordarti la strada».",s:S('<ellipse cx="100" cy="130" rx="40" ry="12" fill="#D85A30"/><rect x="78" y="100" width="44" height="30" rx="5" fill="#993C1D"/><rect x="78" y="116" width="44" height="6" fill="#F5C4B3"/><path d="M20 168 Q60 150 100 168 T180 168" fill="none" stroke="#7d9aa5" stroke-width="3" stroke-linecap="round"/>')}
+];
+var i=0,busy=false;
+var L=document.getElementById('left'),R=document.getElementById('right'),B=document.getElementById('book');
+var dots=document.getElementById('dots'),prev=document.getElementById('prev'),next=document.getElementById('next');
+pages.forEach(function(){dots.appendChild(document.createElement('span'))});
+function paint(){
+  var p=pages[i];
+  L.innerHTML=p.s;
+  document.getElementById('ttl').textContent=p.t;
+  document.getElementById('txt').textContent=p.x;
+  document.getElementById('num').textContent=i===0?'Una storia illustrata':'Pagina '+i+' di '+(pages.length-1);
+  B.classList.toggle('cover',i===0);
+  Array.prototype.forEach.call(dots.children,function(d,k){d.className=k===i?'on':''});
+  prev.setAttribute('aria-disabled',i===0);
+  next.setAttribute('aria-disabled',i===pages.length-1);
+  next.textContent=i===0?'Apri il libro':(i===pages.length-1?'Ricomincia':'Avanti');
+}
+function go(n){
+  if(busy)return;
+  if(n>=pages.length)n=0;
+  if(n<0)return;
+  busy=true;
+  R.style.transform='rotateY('+(n>i?-90:90)+'deg)';
+  setTimeout(function(){
+    i=n;paint();
+    R.style.transition='none';
+    R.style.transform='rotateY(0deg)';
+    void R.offsetWidth;
+    R.style.transition='';
+    busy=false;
+  },240);
+}
+next.onclick=function(){go(i+1)};
+prev.onclick=function(){go(i-1)};
+document.addEventListener('keydown',function(e){
+  if(e.key==='ArrowRight')go(i+1);
+  if(e.key==='ArrowLeft')go(i-1);
+});
+paint();
+</script>
+</body>
+</html>
